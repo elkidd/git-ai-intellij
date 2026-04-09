@@ -1,9 +1,14 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g. 0.2.0)'
+        required: true
+      next_version:
+        description: 'Next SNAPSHOT version (e.g. 0.3.0)'
+        required: true
 
 permissions:
   contents: write
@@ -21,11 +26,32 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      - name: Set release version
+        run: |
+          sed -i "s/version = \".*\"/version = \"${{ inputs.version }}\"/" build.gradle.kts
+
       - name: Build plugin
         run: ./gradlew buildPlugin
+
+      - name: Commit, tag and push release
+        run: |
+          git config user.name "ElKidd"
+          git config user.email "216161602+elkidd@users.noreply.github.com"
+          git add build.gradle.kts
+          git commit -m "🔖 Release v${{ inputs.version }}"
+          git tag "v${{ inputs.version }}"
+          git push origin main --tags
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ inputs.version }}
           files: build/distributions/*.zip
           generate_release_notes: true
+
+      - name: Bump to next SNAPSHOT
+        run: |
+          sed -i "s/version = \".*\"/version = \"${{ inputs.next_version }}-SNAPSHOT\"/" build.gradle.kts
+          git add build.gradle.kts
+          git commit -m "🔖 Bump to ${{ inputs.next_version }}-SNAPSHOT"
+          git push origin main

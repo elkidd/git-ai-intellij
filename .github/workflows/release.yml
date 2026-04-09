@@ -12,6 +12,12 @@ on:
           - minor
           - major
         default: patch
+      release_version:
+        description: 'Override release version (leave empty for auto)'
+        required: false
+      next_version:
+        description: 'Override next version (leave empty for auto)'
+        required: false
 
 permissions:
   contents: write
@@ -34,12 +40,18 @@ jobs:
         run: |
           current=$(grep '^version' build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/' | sed 's/-SNAPSHOT//')
           IFS='.' read -r major minor patch <<< "$current"
-          echo "release=${major}.${minor}.${patch}" >> $GITHUB_OUTPUT
-          case "${{ inputs.bump }}" in
-            patch) echo "next=${major}.${minor}.$((patch+1))" >> $GITHUB_OUTPUT ;;
-            minor) echo "next=${major}.$((minor+1)).0" >> $GITHUB_OUTPUT ;;
-            major) echo "next=$((major+1)).0.0" >> $GITHUB_OUTPUT ;;
-          esac
+          release="${{ inputs.release_version }}"
+          next="${{ inputs.next_version }}"
+          if [ -z "$release" ]; then release="${major}.${minor}.${patch}"; fi
+          if [ -z "$next" ]; then
+            case "${{ inputs.bump }}" in
+              patch) next="${major}.${minor}.$((patch+1))" ;;
+              minor) next="${major}.$((minor+1)).0" ;;
+              major) next="$((major+1)).0.0" ;;
+            esac
+          fi
+          echo "release=$release" >> $GITHUB_OUTPUT
+          echo "next=$next" >> $GITHUB_OUTPUT
 
       - name: Set release version
         run: sed -i "s/version = \".*\"/version = \"${{ steps.versions.outputs.release }}\"/" build.gradle.kts

@@ -1,0 +1,23 @@
+.github/workflows/release.yml
+  c4f4b6dbe90ae8ab 6-7,9-14,32-33,35-45,55-56,62,68,70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.6",
+  "base_commit_sha": "eda47e7b94fea1662bd1e7427d678ec2305981ef",
+  "prompts": {
+    "c4f4b6dbe90ae8ab": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "unknown",
+        "model": "unknown"
+      },
+      "human_author": "ElKidd",
+      "messages": [],
+      "total_additions": 26,
+      "total_deletions": 12,
+      "accepted_lines": 26,
+      "overriden_lines": 0
+    }
+  }
+}

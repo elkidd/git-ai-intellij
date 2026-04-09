@@ -3,12 +3,15 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Release version (e.g. 0.2.0)'
+      bump:
+        description: 'Version bump type'
         required: true
-      next_version:
-        description: 'Next SNAPSHOT version (e.g. 0.3.0)'
-        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
 
 permissions:
   contents: write
@@ -26,9 +29,20 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
-      - name: Set release version
+      - name: Calculate versions
+        id: versions
         run: |
-          sed -i "s/version = \".*\"/version = \"${{ inputs.version }}\"/" build.gradle.kts
+          current=$(grep '^version' build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/' | sed 's/-SNAPSHOT//')
+          IFS='.' read -r major minor patch <<< "$current"
+          echo "release=${major}.${minor}.${patch}" >> $GITHUB_OUTPUT
+          case "${{ inputs.bump }}" in
+            patch) echo "next=${major}.${minor}.$((patch+1))" >> $GITHUB_OUTPUT ;;
+            minor) echo "next=${major}.$((minor+1)).0" >> $GITHUB_OUTPUT ;;
+            major) echo "next=$((major+1)).0.0" >> $GITHUB_OUTPUT ;;
+          esac
+
+      - name: Set release version
+        run: sed -i "s/version = \".*\"/version = \"${{ steps.versions.outputs.release }}\"/" build.gradle.kts
 
       - name: Build plugin
         run: ./gradlew buildPlugin
@@ -38,20 +52,20 @@ jobs:
           git config user.name "ElKidd"
           git config user.email "216161602+elkidd@users.noreply.github.com"
           git add build.gradle.kts
-          git commit -m "🔖 Release v${{ inputs.version }}"
-          git tag "v${{ inputs.version }}"
+          git commit -m "🔖 Release v${{ steps.versions.outputs.release }}"
+          git tag "v${{ steps.versions.outputs.release }}"
           git push origin main --tags
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ inputs.version }}
+          tag_name: v${{ steps.versions.outputs.release }}
           files: build/distributions/*.zip
           generate_release_notes: true
 
       - name: Bump to next SNAPSHOT
         run: |
-          sed -i "s/version = \".*\"/version = \"${{ inputs.next_version }}-SNAPSHOT\"/" build.gradle.kts
+          sed -i "s/version = \".*\"/version = \"${{ steps.versions.outputs.next }}-SNAPSHOT\"/" build.gradle.kts
           git add build.gradle.kts
-          git commit -m "🔖 Bump to ${{ inputs.next_version }}-SNAPSHOT"
+          git commit -m "🔖 Bump to ${{ steps.versions.outputs.next }}-SNAPSHOT"
           git push origin main

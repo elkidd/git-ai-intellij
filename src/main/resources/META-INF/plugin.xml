@@ -1,0 +1,27 @@
+<idea-plugin>
+    <id>com.gitai.blame</id>
+    <name>Git AI Blame</name>
+    <version>0.1.0</version>
+    <vendor>ElKidd</vendor>
+    <description><![CDATA[
+        Shows git-ai blame annotations in the editor gutter, highlighting AI-authored lines
+        with agent and model information. Requires the <a href="https://usegitai.com">git-ai CLI</a>.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="com.gitai.blame.GitAiBlameService" />
+    </extensions>
+
+    <actions>
+        <action id="GitAiBlame.Annotate"
+                class="com.gitai.blame.GitAiBlameToggleAction"
+                text="Annotate with Git AI Blame"
+                description="Show AI authorship annotations in the gutter">
+            <add-to-group group-id="EditorPopupMenu" anchor="last" />
+            <add-to-group group-id="EditorGutterPopupMenu" anchor="last" />
+            <add-to-group group-id="VcsGroup" anchor="last" />
+        </action>
+    </actions>
+</idea-plugin>

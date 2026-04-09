@@ -1,0 +1,23 @@
+src/main/resources/META-INF/plugin.xml
+  c4f4b6dbe90ae8ab 18,20-21,23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.6",
+  "base_commit_sha": "7bc2397e0add661e16c44af6271da20230e28785",
+  "prompts": {
+    "c4f4b6dbe90ae8ab": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "unknown",
+        "model": "unknown"
+      },
+      "human_author": "ElKidd",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 3,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}

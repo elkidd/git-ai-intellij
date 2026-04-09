@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.gitai.blame"
-version = "0.1.0"
+version = "0.2.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -29,7 +29,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "com.gitai.blame"
         name = "Git AI Blame"
-        version = "0.1.0"
+        version = "0.2.0-SNAPSHOT"
         description = "Shows git-ai blame annotations in the editor gutter, highlighting AI-authored lines with agent and model info."
         vendor {
             name = "ElKidd"
